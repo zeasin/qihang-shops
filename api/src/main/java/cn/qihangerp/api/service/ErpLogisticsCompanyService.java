@@ -1,0 +1,22 @@
+package cn.qihangerp.api.service;
+
+import com.baomidou.mybatisplus.extension.service.IService;
+import cn.qihangerp.api.common.PageQuery;
+import cn.qihangerp.api.common.PageResult;
+import cn.qihangerp.api.domain.ErpLogisticsCompany;
+
+import java.util.List;
+
+
+/**
+* @author TW
+* @description 针对表【sys_logistics_company(平台快递公司表)】的数据库操作Service
+* @createDate 2024-03-22 11:03:11
+*/
+public interface ErpLogisticsCompanyService extends IService<ErpLogisticsCompany> {
+    PageResult<ErpLogisticsCompany> queryPageList(Integer platform, Integer status,String name, PageQuery pageQuery);
+    List<ErpLogisticsCompany> queryListByStatus(Integer status, Integer shopType);
+    int updateStatus(String id,Integer status);
+    int insert(ErpLogisticsCompany logisticsCompany);
+    ErpLogisticsCompany queryByCode(String code,Integer shopType);
+}

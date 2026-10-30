@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.qihangerp.api.mapper.ErpOrderMapper">
+
+    <resultMap id="BaseResultMap" type="cn.qihangerp.api.domain.ErpOrder">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="orderNum" column="order_num" jdbcType="VARCHAR"/>
+            <result property="shopType" column="shop_type" jdbcType="INTEGER"/>
+            <result property="shopId" column="shop_id" jdbcType="INTEGER"/>
+            <result property="remark" column="remark" jdbcType="VARCHAR"/>
+            <result property="buyerMemo" column="buyer_memo" jdbcType="VARCHAR"/>
+            <result property="sellerMemo" column="seller_memo" jdbcType="VARCHAR"/>
+            <result property="tag" column="tag" jdbcType="VARCHAR"/>
+            <result property="refundStatus" column="refund_status" jdbcType="INTEGER"/>
+            <result property="orderStatus" column="order_status" jdbcType="INTEGER"/>
+            <result property="goodsAmount" column="goods_amount" jdbcType="DOUBLE"/>
+            <result property="orderAmount" column="order_amount" jdbcType="DOUBLE"/>
+            <result property="payAmount" column="pay_amount" jdbcType="DOUBLE"/>
+            <result property="expressFee" column="express_fee" jdbcType="DOUBLE"/>
+            <result property="platformFee" column="platform_fee" jdbcType="DOUBLE"/>
+            <result property="receiverNameMask" column="receiver_name_mask" jdbcType="VARCHAR"/>
+            <result property="receiverName" column="receiver_name" jdbcType="VARCHAR"/>
+            <result property="receiverMobile" column="receiver_mobile" jdbcType="VARCHAR"/>
+            <result property="receiverPhone" column="receiver_phone" jdbcType="VARCHAR"/>
+            <result property="address" column="address" jdbcType="VARCHAR"/>
+            <result property="receiverAddress" column="receiver_address" jdbcType="VARCHAR"/>
+            <result property="province" column="province" jdbcType="VARCHAR"/>
+            <result property="city" column="city" jdbcType="VARCHAR"/>
+            <result property="town" column="town" jdbcType="VARCHAR"/>
+            <result property="orderTime" column="order_time" jdbcType="TIMESTAMP"/>
+            <result property="shipStatus" column="ship_status" jdbcType="INTEGER"/>
+            <result property="shipType" column="ship_type" jdbcType="INTEGER"/>
+            <result property="shipper" column="shipper" jdbcType="INTEGER"/>
+            <result property="hasPushErp" column="has_push_erp" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="waybillTime" column="waybill_time" jdbcType="TIMESTAMP"/>
+            <result property="updateBy" column="update_by" jdbcType="VARCHAR"/>
+            <result property="waybillCode" column="waybill_code" jdbcType="VARCHAR"/>
+            <result property="waybillStatus" column="waybill_status" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,order_num,shop_type,shop_id,remark,buyer_memo,
+        seller_memo,tag,refund_status,order_status,goods_amount,order_amount,pay_amount,
+        express_fee,platform_fee,
+        receiver_address,receiver_phone,receiver_name,receiver_name_mask,receiver_mobile,address,
+        province,city,town,waybill_code,waybill_status,waybill_time,
+        order_time,ship_status,ship_type,shipper,
+        has_push_erp,create_time,create_by,update_time,update_by
+    </sql>
+
+    <select id="salesDaily" resultType="cn.qihangerp.api.domain.vo.SalesDailyVo">
+        SELECT
+            DATE(order_time) AS date,
+            COUNT(*) AS count,
+            SUM(order_amount) AS amount
+
+        FROM
+            erp_order
+        WHERE  1=1
+        GROUP BY
+            date
+        ORDER BY
+            date
+
+            LIMIT 30
+    </select>
+
+    <select id="getTodaySalesDaily" resultType="cn.qihangerp.api.domain.vo.SalesDailyVo">
+        SELECT
+
+            COUNT(*) AS count,
+            SUM(order_amount) AS amount
+
+        FROM
+            erp_order
+
+        WHERE DATE(`order_time`) = CURDATE()
+    </select>
+    <select id="getWaitShipOrderAllCount" resultType="int">
+        SELECT
+        COUNT(*) AS count
+        FROM
+        erp_order as o
+        WHERE order_status=1
+    </select>
+</mapper>

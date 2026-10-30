@@ -1,0 +1,62 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: qihang-shops-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: Andy_123
+      MYSQL_DATABASE: qihang_shop
+      TZ: Asia/Shanghai
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_general_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docs/sql/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./docs/sql/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-pAndy_123"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    container_name: qihang-shops-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+
+  api:
+    build: ./api
+    container_name: qihang-shops-api
+    restart: unless-stopped
+    # 容器网络下覆盖 application.yaml 中的地址（Spring Boot 原生环境变量，无需占位符）
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/qihang_shop?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=GMT%2B8
+      SPRING_DATA_REDIS_HOST: redis
+      TZ: Asia/Shanghai
+    ports:
+      - "8098:8098"
+    volumes:
+      # 头像等上传文件持久化，避免容器重建后丢失
+      - api-upload:/app/upload
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  web:
+    build: ./vue
+    container_name: qihang-shops-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
+volumes:
+  mysql-data:
+  redis-data:
+  api-upload:
